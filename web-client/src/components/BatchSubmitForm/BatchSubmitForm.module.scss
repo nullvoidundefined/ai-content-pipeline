@@ -1,0 +1,147 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.itemList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.itemRow {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+}
+
+.typeToggle {
+    display: flex;
+    flex-direction: row;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.typeBtn {
+    padding: 8px 14px;
+    font-size: 13px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--foreground);
+    transition: background 0.15s, color 0.15s;
+}
+
+.typeBtnActive {
+    background: var(--accent);
+    color: #fff;
+}
+
+.itemInput {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--foreground);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+
+    &::placeholder {
+        color: var(--foreground-muted);
+        opacity: 0.6;
+    }
+
+    &:focus {
+        border-color: var(--accent);
+    }
+}
+
+.removeBtn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--foreground-muted);
+    border-radius: 6px;
+    font-size: 18px;
+    transition: background 0.15s;
+    flex-shrink: 0;
+
+    &:hover {
+        background: var(--surface-hover);
+    }
+}
+
+.addItemBtn {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 8px 16px;
+    font-size: 13px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--foreground);
+    transition: background 0.15s;
+    align-self: flex-start;
+
+    &:hover {
+        background: var(--surface-hover);
+    }
+}
+
+.footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.submitBtn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+        background: var(--accent-hover);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.errorMsg {
+    font-size: 13px;
+    color: #ef4444;
+}
