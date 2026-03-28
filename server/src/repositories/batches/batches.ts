@@ -1,6 +1,6 @@
-import { query, withTransaction } from "app/db/pool/pool.js";
-import type { PoolClient } from "app/db/pool/pool.js";
-import type { Batch, BatchItem, InputType } from "app/schemas/batch.js";
+import { query, withTransaction } from 'app/db/pool/pool.js';
+import type { PoolClient } from 'app/db/pool/pool.js';
+import type { Batch, BatchItem, InputType } from 'app/schemas/batch.js';
 
 interface CreateItemInput {
   type: InputType;
@@ -21,7 +21,7 @@ export async function createBatchWithItems(
       client,
     );
     const batch = batchResult.rows[0];
-    if (!batch) throw new Error("Insert returned no row");
+    if (!batch) throw new Error('Insert returned no row');
 
     const createdItems: BatchItem[] = [];
     for (const item of items) {
@@ -33,7 +33,7 @@ export async function createBatchWithItems(
         client,
       );
       const row = itemResult.rows[0];
-      if (!row) throw new Error("Insert returned no row");
+      if (!row) throw new Error('Insert returned no row');
       createdItems.push(row);
     }
 
@@ -41,7 +41,10 @@ export async function createBatchWithItems(
   });
 }
 
-export async function getBatchById(batchId: string, userId: string): Promise<Batch | null> {
+export async function getBatchById(
+  batchId: string,
+  userId: string,
+): Promise<Batch | null> {
   const result = await query<Batch>(
     `SELECT * FROM batches WHERE id = $1 AND user_id = $2`,
     [batchId, userId],
@@ -147,7 +150,9 @@ export async function updateItemResults(
   return result.rows[0] ?? null;
 }
 
-export async function updateBatchCounts(batchId: string): Promise<Batch | null> {
+export async function updateBatchCounts(
+  batchId: string,
+): Promise<Batch | null> {
   const result = await query<Batch>(
     `UPDATE batches SET
        completed_items = (SELECT COUNT(*) FROM batch_items WHERE batch_id = $1 AND status = 'complete'),

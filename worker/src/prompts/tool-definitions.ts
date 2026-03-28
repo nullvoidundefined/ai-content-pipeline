@@ -1,24 +1,25 @@
-import type Anthropic from "@anthropic-ai/sdk";
+import type Anthropic from '@anthropic-ai/sdk';
 
 export const TOOL_DEFINITIONS: Anthropic.Tool[] = [
   {
-    name: "summarize",
+    name: 'summarize',
     description:
-      "Generate a concise summary of the given content. Call this tool to produce a summary that captures the key points, main arguments, and important details.",
+      'Generate a concise summary of the given content. Call this tool to produce a summary that captures the key points, main arguments, and important details.',
     input_schema: {
-      type: "object" as const,
+      type: 'object' as const,
       properties: {
         summary: {
-          type: "string",
-          description: "A concise summary of the content, 2-4 sentences covering key points",
+          type: 'string',
+          description:
+            'A concise summary of the content, 2-4 sentences covering key points',
         },
         key_points: {
-          type: "array",
-          items: { type: "string" },
-          description: "3-5 bullet point key takeaways from the content",
+          type: 'array',
+          items: { type: 'string' },
+          description: '3-5 bullet point key takeaways from the content',
         },
       },
-      required: ["summary", "key_points"],
+      required: ['summary', 'key_points'],
     },
   },
 ];

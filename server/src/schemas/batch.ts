@@ -1,20 +1,30 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-export const batchStatusEnum = z.enum(["pending", "processing", "complete", "failed"]);
-export const itemStatusEnum = z.enum(["queued", "processing", "complete", "failed"]);
-export const inputTypeEnum = z.enum(["url", "text"]);
+export const batchStatusEnum = z.enum([
+  'pending',
+  'processing',
+  'complete',
+  'failed',
+]);
+export const itemStatusEnum = z.enum([
+  'queued',
+  'processing',
+  'complete',
+  'failed',
+]);
+export const inputTypeEnum = z.enum(['url', 'text']);
 
 export const createBatchSchema = z.object({
   items: z
     .array(
       z.object({
         type: inputTypeEnum,
-        url: z.string().url("Invalid URL").optional(),
-        text: z.string().min(1, "Text content is required").optional(),
+        url: z.string().url('Invalid URL').optional(),
+        text: z.string().min(1, 'Text content is required').optional(),
       }),
     )
-    .min(1, "At least one item is required")
-    .max(50, "Maximum 50 items per batch"),
+    .min(1, 'At least one item is required')
+    .max(50, 'Maximum 50 items per batch'),
 });
 
 export const batchSchema = z.object({

@@ -1,15 +1,17 @@
-import Anthropic from "@anthropic-ai/sdk";
-import type { Job } from "bullmq";
-
-import { query } from "app/db/pool/pool.js";
-import { SYSTEM_PROMPT, TOOL_DEFINITIONS } from "app/prompts/tool-definitions.js";
-import { fetchContent } from "app/services/content-fetcher.service.js";
-import { logger } from "app/utils/logs/logger.js";
+import Anthropic from '@anthropic-ai/sdk';
+import { query } from 'app/db/pool/pool.js';
+import {
+  SYSTEM_PROMPT,
+  TOOL_DEFINITIONS,
+} from 'app/prompts/tool-definitions.js';
+import { fetchContent } from 'app/services/content-fetcher.service.js';
+import { logger } from 'app/utils/logs/logger.js';
+import type { Job } from 'bullmq';
 
 interface ProcessItemData {
   itemId: string;
   batchId: string;
-  inputType: "url" | "text";
+  inputType: 'url' | 'text';
   inputUrl: string | null;
   inputText: string | null;
 }
@@ -19,7 +21,7 @@ const anthropic = new Anthropic();
 export async function processItem(job: Job<ProcessItemData>): Promise<void> {
   const { itemId, batchId, inputType, inputUrl, inputText } = job.data;
 
-  logger.info({ itemId, batchId, inputType }, "Processing item");
+  logger.info({ itemId, batchId, inputType }, 'Processing item');
 
   // Mark item as processing
   await query(
@@ -30,27 +32,27 @@ export async function processItem(job: Job<ProcessItemData>): Promise<void> {
   try {
     // Step 1: Get content
     let content: string;
-    if (inputType === "url" && inputUrl) {
+    if (inputType === 'url' && inputUrl) {
       content = await fetchContent(inputUrl);
     } else if (inputText) {
       content = inputText.slice(0, 8000);
     } else {
-      throw new Error("No content available for processing");
+      throw new Error('No content available for processing');
     }
 
     if (content.length < 10) {
-      throw new Error("Content too short to process");
+      throw new Error('Content too short to process');
     }
 
     // Step 2: Call Anthropic API with tool definitions
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
+      model: 'claude-sonnet-4-20250514',
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
       tools: TOOL_DEFINITIONS,
       messages: [
         {
-          role: "user",
+          role: 'user',
           content: `Analyze the following content and use the summarize tool to generate a structured summary:\n\n${content}`,
         },
       ],
@@ -61,15 +63,18 @@ export async function processItem(job: Job<ProcessItemData>): Promise<void> {
     let keyPoints: string[] | null = null;
 
     for (const block of response.content) {
-      if (block.type === "tool_use" && block.name === "summarize") {
-        const input = block.input as { summary?: string; key_points?: string[] };
+      if (block.type === 'tool_use' && block.name === 'summarize') {
+        const input = block.input as {
+          summary?: string;
+          key_points?: string[];
+        };
         summary = input.summary ?? null;
         keyPoints = input.key_points ?? null;
       }
     }
 
     if (!summary) {
-      throw new Error("LLM did not return a summary tool call");
+      throw new Error('LLM did not return a summary tool call');
     }
 
     // Step 4: Store results
@@ -84,10 +89,10 @@ export async function processItem(job: Job<ProcessItemData>): Promise<void> {
       [summary, keyPoints, itemId],
     );
 
-    logger.info({ itemId, batchId }, "Item processed successfully");
+    logger.info({ itemId, batchId }, 'Item processed successfully');
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
-    logger.error({ err, itemId, batchId }, "Failed to process item");
+    logger.error({ err, itemId, batchId }, 'Failed to process item');
 
     await query(
       `UPDATE batch_items

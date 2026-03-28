@@ -1,10 +1,9 @@
-import { Worker } from "bullmq";
+import pool from 'app/db/pool/pool.js';
+import { processItem } from 'app/processors/content-processor.js';
+import { logger } from 'app/utils/logs/logger.js';
+import { Worker } from 'bullmq';
 
-import pool from "app/db/pool/pool.js";
-import { processItem } from "app/processors/content-processor.js";
-import { logger } from "app/utils/logs/logger.js";
-
-const worker = new Worker("content-process", processItem, {
+const worker = new Worker('content-process', processItem, {
   connection: { url: process.env.REDIS_URL },
   concurrency: 3,
   limiter: {
@@ -13,44 +12,44 @@ const worker = new Worker("content-process", processItem, {
   },
 });
 
-worker.on("ready", () => {
-  logger.info("Worker ready and listening for jobs");
+worker.on('ready', () => {
+  logger.info('Worker ready and listening for jobs');
 });
 
-worker.on("completed", (job) => {
-  logger.info({ jobId: job.id, itemId: job.data.itemId }, "Job completed");
+worker.on('completed', (job) => {
+  logger.info({ jobId: job.id, itemId: job.data.itemId }, 'Job completed');
 });
 
-worker.on("failed", (job, err) => {
+worker.on('failed', (job, err) => {
   logger.error(
     { jobId: job?.id, itemId: job?.data?.itemId, err },
-    "Job failed",
+    'Job failed',
   );
 });
 
-worker.on("error", (err) => {
-  logger.error({ err }, "Worker error");
+worker.on('error', (err) => {
+  logger.error({ err }, 'Worker error');
 });
 
 async function shutdown(signal: string) {
-  logger.info({ signal }, "Worker shutting down gracefully");
+  logger.info({ signal }, 'Worker shutting down gracefully');
   await worker.close();
   await pool.end();
   process.exit(0);
 }
 
-process.on("SIGTERM", () => shutdown("SIGTERM"));
-process.on("SIGINT", () => shutdown("SIGINT"));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
-process.on("uncaughtException", (err) => {
-  logger.fatal({ err }, "Uncaught exception in worker – shutting down");
+process.on('uncaughtException', (err) => {
+  logger.fatal({ err }, 'Uncaught exception in worker – shutting down');
   logger.flush();
   process.exit(1);
 });
-process.on("unhandledRejection", (reason) => {
-  logger.fatal({ reason }, "Unhandled rejection in worker – shutting down");
+process.on('unhandledRejection', (reason) => {
+  logger.fatal({ reason }, 'Unhandled rejection in worker – shutting down');
   logger.flush();
   process.exit(1);
 });
 
-logger.info("Content processing worker started");
+logger.info('Content processing worker started');

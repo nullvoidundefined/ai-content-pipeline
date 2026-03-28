@@ -1,27 +1,30 @@
-import type { Request, Response } from "express";
-
-import { getContentProcessQueue } from "app/config/queue.js";
-import * as batchesRepo from "app/repositories/batches/batches.js";
-import { createBatchSchema } from "app/schemas/batch.js";
-import { logger } from "app/utils/logs/logger.js";
-import { parsePagination } from "app/utils/parsers/parsePagination.js";
+import { getContentProcessQueue } from 'app/config/queue.js';
+import * as batchesRepo from 'app/repositories/batches/batches.js';
+import { createBatchSchema } from 'app/schemas/batch.js';
+import { logger } from 'app/utils/logs/logger.js';
+import { parsePagination } from 'app/utils/parsers/parsePagination.js';
+import type { Request, Response } from 'express';
 
 export async function createBatch(req: Request, res: Response): Promise<void> {
   const parsed = createBatchSchema.safeParse(req.body);
   if (!parsed.success) {
-    const message = parsed.error.issues.map((e) => e.message).join("; ");
+    const message = parsed.error.issues.map((e) => e.message).join('; ');
     res.status(400).json({ error: { message } });
     return;
   }
 
   // Validate each item has the right content for its type
   for (const item of parsed.data.items) {
-    if (item.type === "url" && !item.url) {
-      res.status(400).json({ error: { message: "URL items must include a url field" } });
+    if (item.type === 'url' && !item.url) {
+      res
+        .status(400)
+        .json({ error: { message: 'URL items must include a url field' } });
       return;
     }
-    if (item.type === "text" && !item.text) {
-      res.status(400).json({ error: { message: "Text items must include a text field" } });
+    if (item.type === 'text' && !item.text) {
+      res
+        .status(400)
+        .json({ error: { message: 'Text items must include a text field' } });
       return;
     }
   }
@@ -35,7 +38,7 @@ export async function createBatch(req: Request, res: Response): Promise<void> {
   const queue = getContentProcessQueue();
   if (queue) {
     for (const item of items) {
-      await queue.add("process-item", {
+      await queue.add('process-item', {
         itemId: item.id,
         batchId: batch.id,
         inputType: item.input_type,
@@ -44,11 +47,14 @@ export async function createBatch(req: Request, res: Response): Promise<void> {
       });
     }
     logger.info(
-      { event: "batch_created", batchId: batch.id, itemCount: items.length },
-      "Batch created and enqueued",
+      { event: 'batch_created', batchId: batch.id, itemCount: items.length },
+      'Batch created and enqueued',
     );
   } else {
-    logger.warn({ batchId: batch.id }, "Queue not available — items will not be processed");
+    logger.warn(
+      { batchId: batch.id },
+      'Queue not available — items will not be processed',
+    );
   }
 
   res.status(201).json({ data: { batch, items } });
@@ -58,26 +64,38 @@ export async function getBatch(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
   const batch = await batchesRepo.getBatchById(id, req.user!.id);
   if (!batch) {
-    res.status(404).json({ error: { message: "Batch not found" } });
+    res.status(404).json({ error: { message: 'Batch not found' } });
     return;
   }
   res.json({ data: batch });
 }
 
-export async function getBatchItems(req: Request, res: Response): Promise<void> {
+export async function getBatchItems(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const id = req.params.id as string;
   const { limit, offset } = parsePagination(req);
   const batch = await batchesRepo.getBatchById(id, req.user!.id);
   if (!batch) {
-    res.status(404).json({ error: { message: "Batch not found" } });
+    res.status(404).json({ error: { message: 'Batch not found' } });
     return;
   }
-  const { items, total } = await batchesRepo.getBatchItems(id, req.user!.id, limit, offset);
+  const { items, total } = await batchesRepo.getBatchItems(
+    id,
+    req.user!.id,
+    limit,
+    offset,
+  );
   res.json({ data: items, meta: { total, limit, offset } });
 }
 
 export async function listBatches(req: Request, res: Response): Promise<void> {
   const { limit, offset } = parsePagination(req);
-  const { batches, total } = await batchesRepo.listBatches(req.user!.id, limit, offset);
+  const { batches, total } = await batchesRepo.listBatches(
+    req.user!.id,
+    limit,
+    offset,
+  );
   res.json({ data: batches, meta: { total, limit, offset } });
 }

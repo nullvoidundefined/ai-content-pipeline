@@ -1,6 +1,5 @@
-import { Queue } from "bullmq";
-
-import { logger } from "app/utils/logs/logger.js";
+import { logger } from 'app/utils/logs/logger.js';
+import { Queue } from 'bullmq';
 
 let contentProcessQueue: Queue | null = null;
 
@@ -9,16 +8,16 @@ export function getContentProcessQueue(): Queue | null {
 
   const url = process.env.REDIS_URL;
   if (!url) {
-    logger.warn("REDIS_URL not set — cannot create content-process queue");
+    logger.warn('REDIS_URL not set — cannot create content-process queue');
     return null;
   }
 
-  contentProcessQueue = new Queue("content-process", {
+  contentProcessQueue = new Queue('content-process', {
     connection: { url },
     defaultJobOptions: {
       attempts: 3,
       backoff: {
-        type: "exponential",
+        type: 'exponential',
         delay: 5000,
       },
       removeOnComplete: { count: 1000 },
