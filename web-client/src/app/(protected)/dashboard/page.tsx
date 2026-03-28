@@ -2,23 +2,25 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
 
-import { useAuth } from '@/lib/auth';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { api } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
 import type { Batch } from '@/types';
-import { BatchSubmitForm } from '@/components/BatchSubmitForm/BatchSubmitForm';
-import { BatchList } from '@/components/BatchList/BatchList';
+import BatchSubmitForm from '@/components/BatchSubmitForm/BatchSubmitForm';
+import BatchList from '@/components/BatchList/BatchList';
 
 import styles from './dashboard.module.scss';
 
 export default function DashboardPage() {
     const { user, loading } = useAuth();
     const router = useRouter();
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         if (!loading && !user) {
-            router.push('/login');
+            router.replace('/login');
         }
     }, [user, loading, router]);
 
@@ -28,16 +30,26 @@ export default function DashboardPage() {
         enabled: !!user,
     });
 
-    if (loading || (!user && !loading)) {
-        return null;
-    }
+    const handleBatchCreated = () => {
+        queryClient.invalidateQueries({ queryKey: ['batches'] });
+    };
 
-    const batches = data?.batches ?? [];
+    if (!user) return null;
 
     return (
         <div className={styles.page}>
-            <BatchSubmitForm onSuccess={() => refetch()} />
-            <BatchList batches={batches} isLoading={isLoading} refetch={refetch} />
+            <div className={styles.section}>
+                <h1 className={styles.pageTitle}>Content Pipeline</h1>
+                <p className={styles.pageSubtitle}>
+                    Submit URLs or text for AI-powered summarization and tagging.
+                </p>
+            </div>
+            <BatchSubmitForm onSuccess={handleBatchCreated} />
+            <BatchList
+                batches={data?.batches ?? []}
+                isLoading={isLoading}
+                refetch={refetch}
+            />
         </div>
     );
 }

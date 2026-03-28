@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import type { FormEvent } from 'react';
 
 import { api } from '@/lib/api';
 
@@ -20,61 +21,62 @@ function createItem(): FormItem {
     return { id: crypto.randomUUID(), type: 'url', value: '' };
 }
 
-export function BatchSubmitForm({ onSuccess }: BatchSubmitFormProps) {
+export default function BatchSubmitForm({ onSuccess }: BatchSubmitFormProps) {
     const [items, setItems] = useState<FormItem[]>([createItem()]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
-    function addItem() {
+    const addItem = useCallback(() => {
         if (items.length >= 50) return;
         setItems((prev) => [...prev, createItem()]);
-    }
+    }, [items.length]);
 
-    function removeItem(id: string) {
+    const removeItem = useCallback((id: string) => {
         setItems((prev) => prev.filter((item) => item.id !== id));
-    }
+    }, []);
 
-    function updateItemType(id: string, type: 'url' | 'text') {
-        setItems((prev) => prev.map((item) => (item.id === id ? { ...item, type } : item)));
-    }
+    const updateItem = useCallback(
+        (id: string, changes: Partial<Omit<FormItem, 'id'>>) => {
+            setItems((prev) =>
+                prev.map((item) => (item.id === id ? { ...item, ...changes } : item)),
+            );
+        },
+        [],
+    );
 
-    function updateItemValue(id: string, value: string) {
-        setItems((prev) => prev.map((item) => (item.id === id ? { ...item, value } : item)));
-    }
-
-    async function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        setError(null);
-
-        const validItems = items.filter((item) => item.value.trim() !== '');
-        if (validItems.length === 0) {
-            setError('Add at least one item before submitting.');
-            return;
-        }
-
-        setIsSubmitting(true);
-        try {
-            await api.post('/batches', {
-                items: validItems.map((item) => ({
-                    type: item.type,
-                    ...(item.type === 'url' ? { url: item.value.trim() } : { text: item.value.trim() }),
-                })),
-            });
-            setItems([createItem()]);
-            onSuccess();
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to submit batch.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    }
+    const handleSubmit = useCallback(
+        async (e: FormEvent) => {
+            e.preventDefault();
+            setError('');
+            setLoading(true);
+            try {
+                const payload = {
+                    items: items.map((item) =>
+                        item.type === 'url'
+                            ? { type: 'url' as const, url: item.value }
+                            : { type: 'text' as const, text: item.value },
+                    ),
+                };
+                await api.post('/batches', payload);
+                setItems([createItem()]);
+                onSuccess();
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Failed to submit batch');
+            } finally {
+                setLoading(false);
+            }
+        },
+        [items, onSuccess],
+    );
 
     return (
         <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.header}>
-                <span className={styles.title}>Submit a Batch</span>
+                <h2 className={styles.title}>New Batch</h2>
+                <span className={styles.count}>
+                    {items.length} / 50 items
+                </span>
             </div>
-
             <div className={styles.itemList}>
                 {items.map((item) => (
                     <div key={item.id} className={styles.itemRow}>
@@ -82,50 +84,62 @@ export function BatchSubmitForm({ onSuccess }: BatchSubmitFormProps) {
                             <button
                                 type="button"
                                 className={`${styles.typeBtn} ${item.type === 'url' ? styles.typeBtnActive : ''}`}
-                                onClick={() => updateItemType(item.id, 'url')}
+                                onClick={() => updateItem(item.id, { type: 'url' })}
                             >
                                 URL
                             </button>
                             <button
                                 type="button"
                                 className={`${styles.typeBtn} ${item.type === 'text' ? styles.typeBtnActive : ''}`}
-                                onClick={() => updateItemType(item.id, 'text')}
+                                onClick={() => updateItem(item.id, { type: 'text' })}
                             >
                                 Text
                             </button>
                         </div>
-                        <input
-                            className={styles.itemInput}
-                            type={item.type === 'url' ? 'url' : 'text'}
-                            placeholder={item.type === 'url' ? 'https://example.com/article' : 'Paste text to process…'}
-                            value={item.value}
-                            onChange={(e) => updateItemValue(item.id, e.target.value)}
-                        />
-                        <button
-                            type="button"
-                            className={styles.removeBtn}
-                            onClick={() => removeItem(item.id)}
-                            aria-label="Remove item"
-                        >
-                            ×
-                        </button>
+                        {item.type === 'url' ? (
+                            <input
+                                className={styles.itemInput}
+                                type="url"
+                                placeholder="https://example.com/article"
+                                value={item.value}
+                                onChange={(e) => updateItem(item.id, { value: e.target.value })}
+                                required
+                            />
+                        ) : (
+                            <textarea
+                                className={`${styles.itemInput} ${styles.itemTextarea}`}
+                                placeholder="Paste text content to analyze..."
+                                value={item.value}
+                                onChange={(e) => updateItem(item.id, { value: e.target.value })}
+                                required
+                                rows={3}
+                            />
+                        )}
+                        {items.length > 1 && (
+                            <button
+                                type="button"
+                                className={styles.removeBtn}
+                                onClick={() => removeItem(item.id)}
+                                aria-label="Remove item"
+                            >
+                                ×
+                            </button>
+                        )}
                     </div>
                 ))}
             </div>
-
-            <button
-                type="button"
-                className={styles.addItemBtn}
-                onClick={addItem}
-                disabled={items.length >= 50}
-            >
-                + Add item
-            </button>
-
+            {error && <p className={styles.errorMsg}>{error}</p>}
             <div className={styles.footer}>
-                {error ? <span className={styles.errorMsg}>{error}</span> : <span />}
-                <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
-                    {isSubmitting ? 'Submitting…' : 'Submit Batch'}
+                <button
+                    type="button"
+                    className={styles.addItemBtn}
+                    onClick={addItem}
+                    disabled={items.length >= 50}
+                >
+                    + Add item
+                </button>
+                <button type="submit" className={styles.submitBtn} disabled={loading}>
+                    {loading ? 'Submitting...' : 'Submit Batch'}
                 </button>
             </div>
         </form>

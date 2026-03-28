@@ -1,11 +1,12 @@
 .section {
-    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .sectionTitle {
     font-size: 18px;
     font-weight: 600;
-    margin-bottom: 16px;
 }
 
 .list {
@@ -14,6 +15,8 @@
     gap: 12px;
 }
 
+/* ---- Batch card ---- */
+
 .card {
     display: block;
     padding: 16px 20px;
@@ -21,8 +24,6 @@
     border-radius: 12px;
     background: var(--background);
     transition: border-color 0.15s, background 0.15s;
-    text-decoration: none;
-    color: inherit;
 
     &:hover {
         border-color: var(--accent);
@@ -37,6 +38,8 @@
     align-items: center;
     margin-bottom: 8px;
 }
+
+/* ---- Status badges ---- */
 
 .statusBadge {
     display: inline-block;
@@ -66,6 +69,13 @@
     color: #991b1b;
 }
 
+/* ---- Card body ---- */
+
+.date {
+    font-size: 13px;
+    color: var(--foreground-muted);
+}
+
 .meta {
     font-size: 13px;
     color: var(--foreground-muted);
@@ -85,6 +95,8 @@
     transition: width 0.3s;
 }
 
+/* ---- States ---- */
+
 .empty {
     font-size: 14px;
     color: var(--foreground-muted);
@@ -93,20 +105,14 @@
 }
 
 .skeleton {
-    background: var(--surface-alt);
-    border-radius: 12px;
     height: 80px;
-    animation: shimmer 1.5s infinite;
+    border-radius: 12px;
+    background: var(--surface-alt);
+    animation: shimmer 1.4s ease infinite;
 }
 
 @keyframes shimmer {
-    0% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
-    100% {
-        opacity: 1;
-    }
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
 }
