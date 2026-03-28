@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
 import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
 
-import type { Batch } from '@/types';
+import type { Batch, BatchStatus } from '@/types';
 
 import styles from './BatchList.module.scss';
 
@@ -12,6 +12,16 @@ interface BatchListProps {
     isLoading: boolean;
     refetch: () => void;
 }
+
+type FilterValue = 'all' | BatchStatus;
+
+const FILTERS: { label: string; value: FilterValue }[] = [
+    { label: 'All', value: 'all' },
+    { label: 'Pending', value: 'pending' },
+    { label: 'Processing', value: 'processing' },
+    { label: 'Complete', value: 'complete' },
+    { label: 'Failed', value: 'failed' },
+];
 
 function formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString('en-US', {
@@ -35,7 +45,13 @@ function StatusBadge({ status }: { status: Batch['status'] }) {
     );
 }
 
-export default function BatchList({ batches, isLoading, refetch }: BatchListProps) {
+export default function BatchList({
+    batches,
+    isLoading,
+    refetch,
+}: BatchListProps) {
+    const [filter, setFilter] = useState<FilterValue>('all');
+
     const isActive = batches.some(
         (b) => b.status === 'pending' || b.status === 'processing',
     );
@@ -48,26 +64,59 @@ export default function BatchList({ batches, isLoading, refetch }: BatchListProp
         return () => clearInterval(interval);
     }, [isActive, refetch]);
 
+    const filtered =
+        filter === 'all' ? batches : batches.filter((b) => b.status === filter);
+
+    const handleFilter = useCallback((value: FilterValue) => {
+        setFilter(value);
+    }, []);
+
     return (
         <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Your Batches</h2>
+
+            <div
+                className={styles.filterTabs}
+                role="tablist"
+                aria-label="Filter batches by status"
+            >
+                {FILTERS.map(({ label, value }) => (
+                    <button
+                        key={value}
+                        type="button"
+                        role="tab"
+                        aria-selected={filter === value}
+                        className={`${styles.filterTab} ${filter === value ? styles.filterTabActive : ''}`}
+                        onClick={() => handleFilter(value)}
+                    >
+                        {label}
+                    </button>
+                ))}
+            </div>
+
             {isLoading ? (
                 <div className={styles.list}>
                     {[1, 2, 3].map((i) => (
                         <div key={i} className={styles.skeleton} />
                     ))}
                 </div>
-            ) : batches.length === 0 ? (
-                <p className={styles.empty}>No batches yet. Submit your first batch above.</p>
+            ) : filtered.length === 0 ? (
+                <p className={styles.empty}>
+                    {filter === 'all'
+                        ? 'No batches yet. Submit your first batch above.'
+                        : `No ${filter} batches.`}
+                </p>
             ) : (
                 <div className={styles.list}>
-                    {batches.map((batch) => {
+                    {filtered.map((batch) => {
                         const progress =
                             batch.total_items > 0
-                                ? (batch.completed_items / batch.total_items) * 100
+                                ? (batch.completed_items / batch.total_items) *
+                                  100
                                 : 0;
                         const showProgress =
-                            batch.status === 'processing' || batch.status === 'pending';
+                            batch.status === 'processing' ||
+                            batch.status === 'pending';
 
                         return (
                             <Link
@@ -82,8 +131,9 @@ export default function BatchList({ batches, isLoading, refetch }: BatchListProp
                                     </span>
                                 </div>
                                 <p className={styles.meta}>
-                                    {batch.total_items} items &middot; {batch.completed_items}{' '}
-                                    complete &middot; {batch.failed_items} failed
+                                    {batch.total_items} items &middot;{' '}
+                                    {batch.completed_items} complete &middot;{' '}
+                                    {batch.failed_items} failed
                                 </p>
                                 {showProgress && (
                                     <div className={styles.progress}>

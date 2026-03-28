@@ -15,6 +15,8 @@ export interface BatchItem {
     input_url: string | null;
     input_text: string | null;
     status: 'queued' | 'processing' | 'complete' | 'failed';
+    classification: Record<string, unknown> | null;
+    entities: Record<string, unknown> | null;
     tags: string[] | null;
     summary: string | null;
     error: string | null;
