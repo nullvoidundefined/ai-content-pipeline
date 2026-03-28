@@ -1,0 +1,118 @@
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sectionTitle {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ---- Batch card ---- */
+
+.card {
+    display: block;
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--background);
+    transition: border-color 0.15s, background 0.15s;
+
+    &:hover {
+        border-color: var(--accent);
+        background: var(--surface);
+    }
+}
+
+.cardHeader {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+/* ---- Status badges ---- */
+
+.statusBadge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.statusPending {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+.statusProcessing {
+    background: var(--accent-light);
+    color: var(--accent);
+}
+
+.statusComplete {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.statusFailed {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* ---- Card body ---- */
+
+.date {
+    font-size: 13px;
+    color: var(--foreground-muted);
+}
+
+.meta {
+    font-size: 13px;
+    color: var(--foreground-muted);
+}
+
+.progress {
+    margin-top: 10px;
+    height: 4px;
+    background: var(--surface-alt);
+    border-radius: 2px;
+}
+
+.progressFill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.3s;
+}
+
+/* ---- States ---- */
+
+.empty {
+    font-size: 14px;
+    color: var(--foreground-muted);
+    text-align: center;
+    padding: 40px 0;
+}
+
+.skeleton {
+    height: 80px;
+    border-radius: 12px;
+    background: var(--surface-alt);
+    animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes shimmer {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}

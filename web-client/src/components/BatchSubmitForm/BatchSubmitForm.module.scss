@@ -1,0 +1,195 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--background);
+}
+
+/* ---- Header ---- */
+
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.count {
+    font-size: 13px;
+    color: var(--foreground-muted);
+}
+
+/* ---- Item list ---- */
+
+.itemList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.itemRow {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+/* ---- Type toggle ---- */
+
+.typeToggle {
+    display: flex;
+    flex-direction: row;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.typeBtn {
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--foreground-muted);
+    transition: background 0.15s, color 0.15s;
+
+    &:hover {
+        background: var(--surface-hover);
+        color: var(--foreground);
+    }
+}
+
+.typeBtnActive {
+    background: var(--accent);
+    color: #fff;
+
+    &:hover {
+        background: var(--accent-hover);
+        color: #fff;
+    }
+}
+
+/* ---- Inputs ---- */
+
+.itemInput {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--foreground);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+
+    &::placeholder {
+        color: var(--foreground-muted);
+        opacity: 0.6;
+    }
+
+    &:focus {
+        border-color: var(--accent);
+    }
+}
+
+.itemTextarea {
+    resize: vertical;
+    line-height: 1.5;
+}
+
+/* ---- Buttons ---- */
+
+.removeBtn {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--foreground-muted);
+    border-radius: 6px;
+    font-size: 20px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+    margin-top: 2px;
+
+    &:hover {
+        background: var(--surface-hover);
+        color: var(--foreground);
+    }
+}
+
+.addItemBtn {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--foreground);
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+        background: var(--surface-hover);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+/* ---- Footer ---- */
+
+.footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.submitBtn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+        background: var(--accent-hover);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+/* ---- Error ---- */
+
+.errorMsg {
+    font-size: 13px;
+    color: #ef4444;
+}

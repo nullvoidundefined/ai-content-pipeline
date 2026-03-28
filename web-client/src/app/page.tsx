@@ -1,8 +1,22 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+import { useAuth } from '@/lib/auth';
+
 export default function Home() {
-    return (
-        <main>
-            <h1>AI Content Pipeline</h1>
-            <p>Batch content processing with AI-powered analysis.</p>
-        </main>
-    );
+    const { user, loading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (loading) return;
+        if (user) {
+            router.replace('/dashboard');
+        } else {
+            router.replace('/login');
+        }
+    }, [user, loading, router]);
+
+    return null;
 }
