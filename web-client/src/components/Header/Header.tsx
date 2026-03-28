@@ -23,6 +23,12 @@ export default function Header() {
         AI Pipeline
       </Link>
       <div className={styles.right}>
+        <Link href='/documents/summary' className={styles.docLink}>
+          Summary
+        </Link>
+        <Link href='/documents/technical-overview' className={styles.docLink}>
+          Technical Overview
+        </Link>
         {user && (
           <>
             <span className={styles.email}>{user.email}</span>
