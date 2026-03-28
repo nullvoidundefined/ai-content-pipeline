@@ -8,3 +8,4 @@ dist/
 
 # Claude Code local settings
 .claude/
+next-env.d.ts
