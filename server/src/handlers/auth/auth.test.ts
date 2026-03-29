@@ -1,6 +1,9 @@
+import * as authRepo from 'app/repositories/auth/auth.js';
+import { ApiError } from 'app/utils/ApiError.js';
 import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ApiError } from 'app/utils/ApiError.js';
+
+import { login, logout, me, register } from './auth.js';
 
 vi.mock('app/repositories/auth/auth.js', () => ({
   createUserAndSession: vi.fn(),
@@ -23,9 +26,6 @@ vi.mock('app/utils/logs/logger.js', () => ({
   },
 }));
 
-import * as authRepo from 'app/repositories/auth/auth.js';
-import { login, logout, me, register } from './auth.js';
-
 function mockReq(overrides: Partial<Request> = {}): Request {
   return {
     body: {},
@@ -36,7 +36,12 @@ function mockReq(overrides: Partial<Request> = {}): Request {
   } as unknown as Request;
 }
 
-function mockRes(): Response & { _status: number; _body: unknown; _cookies: Record<string, any>; _clearedCookies: string[] } {
+function mockRes(): Response & {
+  _status: number;
+  _body: unknown;
+  _cookies: Record<string, any>;
+  _clearedCookies: string[];
+} {
   const res = {
     _status: 200,
     _body: null,
@@ -61,7 +66,12 @@ function mockRes(): Response & { _status: number; _body: unknown; _cookies: Reco
     send() {
       return res;
     },
-  } as unknown as Response & { _status: number; _body: unknown; _cookies: Record<string, any>; _clearedCookies: string[] };
+  } as unknown as Response & {
+    _status: number;
+    _body: unknown;
+    _cookies: Record<string, any>;
+    _clearedCookies: string[];
+  };
   return res;
 }
 
@@ -82,13 +92,19 @@ describe('register handler', () => {
   });
 
   it('creates user and sets session cookie on success', async () => {
-    const mockUser = { id: 'user-1', email: 'test@test.com', created_at: new Date() };
+    const mockUser = {
+      id: 'user-1',
+      email: 'test@test.com',
+      created_at: new Date(),
+    };
     vi.mocked(authRepo.createUserAndSession).mockResolvedValue({
       user: mockUser as any,
       sessionId: 'session-abc',
     });
 
-    const req = mockReq({ body: { email: 'test@test.com', password: 'securepass' } });
+    const req = mockReq({
+      body: { email: 'test@test.com', password: 'securepass' },
+    });
     const res = mockRes();
 
     await register(req, res);
@@ -103,7 +119,9 @@ describe('register handler', () => {
     (err as any).code = '23505';
     vi.mocked(authRepo.createUserAndSession).mockRejectedValue(err);
 
-    const req = mockReq({ body: { email: 'dup@test.com', password: 'securepass' } });
+    const req = mockReq({
+      body: { email: 'dup@test.com', password: 'securepass' },
+    });
     const res = mockRes();
 
     await expect(register(req, res)).rejects.toThrow(ApiError);
@@ -115,9 +133,13 @@ describe('register handler', () => {
   });
 
   it('rethrows non-duplicate errors', async () => {
-    vi.mocked(authRepo.createUserAndSession).mockRejectedValue(new Error('DB down'));
+    vi.mocked(authRepo.createUserAndSession).mockRejectedValue(
+      new Error('DB down'),
+    );
 
-    const req = mockReq({ body: { email: 'test@test.com', password: 'securepass' } });
+    const req = mockReq({
+      body: { email: 'test@test.com', password: 'securepass' },
+    });
     const res = mockRes();
 
     await expect(register(req, res)).rejects.toThrow('DB down');
@@ -143,7 +165,9 @@ describe('login handler', () => {
   it('throws UNAUTHORIZED for unknown email', async () => {
     vi.mocked(authRepo.findUserByEmail).mockResolvedValue(null);
 
-    const req = mockReq({ body: { email: 'unknown@test.com', password: 'password' } });
+    const req = mockReq({
+      body: { email: 'unknown@test.com', password: 'password' },
+    });
     const res = mockRes();
 
     await expect(login(req, res)).rejects.toThrow(ApiError);
@@ -163,7 +187,9 @@ describe('login handler', () => {
     });
     vi.mocked(authRepo.verifyPassword).mockResolvedValue(false);
 
-    const req = mockReq({ body: { email: 'test@test.com', password: 'wrong' } });
+    const req = mockReq({
+      body: { email: 'test@test.com', password: 'wrong' },
+    });
     const res = mockRes();
 
     await expect(login(req, res)).rejects.toThrow(ApiError);
@@ -184,7 +210,9 @@ describe('login handler', () => {
     vi.mocked(authRepo.verifyPassword).mockResolvedValue(true);
     vi.mocked(authRepo.loginUser).mockResolvedValue('session-xyz');
 
-    const req = mockReq({ body: { email: 'test@test.com', password: 'correct' } });
+    const req = mockReq({
+      body: { email: 'test@test.com', password: 'correct' },
+    });
     const res = mockRes();
 
     await login(req, res);
@@ -224,7 +252,9 @@ describe('logout handler', () => {
   });
 
   it('handles session deletion failure gracefully', async () => {
-    vi.mocked(authRepo.deleteSession).mockRejectedValue(new Error('Redis down'));
+    vi.mocked(authRepo.deleteSession).mockRejectedValue(
+      new Error('Redis down'),
+    );
 
     const req = mockReq({ cookies: { sid: 'session-token' } });
     const res = mockRes();

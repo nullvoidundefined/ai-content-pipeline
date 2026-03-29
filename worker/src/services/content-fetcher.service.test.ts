@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { fetchContent } from './content-fetcher.service.js';
+
 vi.mock('app/utils/logs/logger.js', () => ({
   logger: {
     info: vi.fn(),
@@ -13,8 +15,6 @@ const mockExtract = vi.fn();
 vi.mock('@extractus/article-extractor', () => ({
   extract: (...args: unknown[]) => mockExtract(...args),
 }));
-
-import { fetchContent } from './content-fetcher.service.js';
 
 describe('fetchContent', () => {
   beforeEach(() => {
@@ -50,7 +50,11 @@ describe('fetchContent', () => {
 
     const mockResponse = {
       ok: true,
-      text: vi.fn().mockResolvedValue('<html><body><p>Fallback content here</p></body></html>'),
+      text: vi
+        .fn()
+        .mockResolvedValue(
+          '<html><body><p>Fallback content here</p></body></html>',
+        ),
     };
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(mockResponse as any);
 
@@ -65,7 +69,9 @@ describe('fetchContent', () => {
 
     const mockResponse = {
       ok: true,
-      text: vi.fn().mockResolvedValue('<html><body>Raw HTML content</body></html>'),
+      text: vi
+        .fn()
+        .mockResolvedValue('<html><body>Raw HTML content</body></html>'),
     };
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(mockResponse as any);
 
@@ -91,7 +97,8 @@ describe('fetchContent', () => {
   it('strips script and style tags from fallback HTML', async () => {
     mockExtract.mockResolvedValue({ content: null });
 
-    const html = '<html><head><style>body{color:red}</style></head><body><script>alert("xss")</script><p>Clean text</p></body></html>';
+    const html =
+      '<html><head><style>body{color:red}</style></head><body><script>alert("xss")</script><p>Clean text</p></body></html>';
     vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,
       text: vi.fn().mockResolvedValue(html),

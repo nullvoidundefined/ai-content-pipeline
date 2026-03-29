@@ -68,6 +68,7 @@ graph TB
 ```
 
 **Three services run independently:**
+
 - **API Server** — handles HTTP requests, manages sessions, enqueues jobs
 - **Worker** — pulls jobs from Redis, processes content with Claude, writes results to PostgreSQL
 - **Frontend** — Next.js app that provides the UI and polls for updates
@@ -76,16 +77,16 @@ graph TB
 
 ## 3. Tech Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| Frontend | Next.js 15, React 19, TanStack React Query | SSR, client state, polling |
-| Styling | SCSS Modules, CSS Custom Properties | Component-scoped styles |
-| API | Express 5, TypeScript, Zod | REST API, validation |
-| Queue | Redis, BullMQ 5 | Job queue, rate limiting |
-| Worker | Node.js, @anthropic-ai/sdk | Job processing, Claude API |
-| Database | PostgreSQL (Neon), node-pg-migrate | Persistent storage, migrations |
-| Auth | Cookie sessions, bcrypt | Session-based authentication |
-| Content | @extractus/article-extractor | URL text extraction |
+| Layer    | Technology                                 | Purpose                        |
+| -------- | ------------------------------------------ | ------------------------------ |
+| Frontend | Next.js 15, React 19, TanStack React Query | SSR, client state, polling     |
+| Styling  | SCSS Modules, CSS Custom Properties        | Component-scoped styles        |
+| API      | Express 5, TypeScript, Zod                 | REST API, validation           |
+| Queue    | Redis, BullMQ 5                            | Job queue, rate limiting       |
+| Worker   | Node.js, @anthropic-ai/sdk                 | Job processing, Claude API     |
+| Database | PostgreSQL (Neon), node-pg-migrate         | Persistent storage, migrations |
+| Auth     | Cookie sessions, bcrypt                    | Session-based authentication   |
+| Content  | @extractus/article-extractor               | URL text extraction            |
 
 ---
 
@@ -137,56 +138,56 @@ Four tables managed by `node-pg-migrate` migrations:
 
 ### `users`
 
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | UUID | Primary key, gen_random_uuid() |
-| `email` | TEXT | Unique |
-| `password_hash` | TEXT | bcrypt, 12 rounds |
-| `created_at` | TIMESTAMPTZ | Default NOW() |
-| `updated_at` | TIMESTAMPTZ | Auto-updated via trigger |
+| Column          | Type        | Notes                          |
+| --------------- | ----------- | ------------------------------ |
+| `id`            | UUID        | Primary key, gen_random_uuid() |
+| `email`         | TEXT        | Unique                         |
+| `password_hash` | TEXT        | bcrypt, 12 rounds              |
+| `created_at`    | TIMESTAMPTZ | Default NOW()                  |
+| `updated_at`    | TIMESTAMPTZ | Auto-updated via trigger       |
 
 ### `sessions`
 
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | TEXT | Primary key — SHA256 hash of raw token |
-| `user_id` | UUID | FK → users (CASCADE) |
-| `expires_at` | TIMESTAMPTZ | 7-day TTL |
-| `created_at` | TIMESTAMPTZ | Default NOW() |
+| Column       | Type        | Notes                                  |
+| ------------ | ----------- | -------------------------------------- |
+| `id`         | TEXT        | Primary key — SHA256 hash of raw token |
+| `user_id`    | UUID        | FK → users (CASCADE)                   |
+| `expires_at` | TIMESTAMPTZ | 7-day TTL                              |
+| `created_at` | TIMESTAMPTZ | Default NOW()                          |
 
 ### `batches`
 
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | UUID | Primary key |
-| `user_id` | UUID | FK → users |
-| `status` | VARCHAR(50) | `pending` / `processing` / `complete` / `failed` |
-| `total_items` | INTEGER | Count of items in batch |
-| `completed_items` | INTEGER | Items with status `complete` |
-| `failed_items` | INTEGER | Items with status `failed` |
-| `created_at` | TIMESTAMPTZ | Default NOW() |
-| `completed_at` | TIMESTAMPTZ | Nullable — set when all items finish |
-| `updated_at` | TIMESTAMPTZ | Auto-updated via trigger |
+| Column            | Type        | Notes                                            |
+| ----------------- | ----------- | ------------------------------------------------ |
+| `id`              | UUID        | Primary key                                      |
+| `user_id`         | UUID        | FK → users                                       |
+| `status`          | VARCHAR(50) | `pending` / `processing` / `complete` / `failed` |
+| `total_items`     | INTEGER     | Count of items in batch                          |
+| `completed_items` | INTEGER     | Items with status `complete`                     |
+| `failed_items`    | INTEGER     | Items with status `failed`                       |
+| `created_at`      | TIMESTAMPTZ | Default NOW()                                    |
+| `completed_at`    | TIMESTAMPTZ | Nullable — set when all items finish             |
+| `updated_at`      | TIMESTAMPTZ | Auto-updated via trigger                         |
 
 ### `batch_items`
 
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | UUID | Primary key |
-| `batch_id` | UUID | FK → batches |
-| `input_type` | VARCHAR(10) | `url` or `text` |
-| `input_url` | TEXT | Nullable — populated for URL items |
-| `input_text` | TEXT | Nullable — populated for text items |
-| `status` | VARCHAR(50) | `queued` / `processing` / `complete` / `failed` |
-| `classification` | JSONB | Nullable — flexible schema |
-| `entities` | JSONB | Nullable — flexible schema |
-| `tags` | TEXT[] | Array of extracted tags |
-| `summary` | TEXT | Nullable — AI-generated summary |
-| `error` | TEXT | Nullable — error message on failure |
-| `attempts` | INTEGER | Processing attempt count (max 3) |
-| `processed_at` | TIMESTAMPTZ | Nullable — set on completion |
-| `created_at` | TIMESTAMPTZ | Default NOW() |
-| `updated_at` | TIMESTAMPTZ | Auto-updated via trigger |
+| Column           | Type        | Notes                                           |
+| ---------------- | ----------- | ----------------------------------------------- |
+| `id`             | UUID        | Primary key                                     |
+| `batch_id`       | UUID        | FK → batches                                    |
+| `input_type`     | VARCHAR(10) | `url` or `text`                                 |
+| `input_url`      | TEXT        | Nullable — populated for URL items              |
+| `input_text`     | TEXT        | Nullable — populated for text items             |
+| `status`         | VARCHAR(50) | `queued` / `processing` / `complete` / `failed` |
+| `classification` | JSONB       | Nullable — flexible schema                      |
+| `entities`       | JSONB       | Nullable — flexible schema                      |
+| `tags`           | TEXT[]      | Array of extracted tags                         |
+| `summary`        | TEXT        | Nullable — AI-generated summary                 |
+| `error`          | TEXT        | Nullable — error message on failure             |
+| `attempts`       | INTEGER     | Processing attempt count (max 3)                |
+| `processed_at`   | TIMESTAMPTZ | Nullable — set on completion                    |
+| `created_at`     | TIMESTAMPTZ | Default NOW()                                   |
+| `updated_at`     | TIMESTAMPTZ | Auto-updated via trigger                        |
 
 ---
 
@@ -194,23 +195,24 @@ Four tables managed by `node-pg-migrate` migrations:
 
 ### Authentication — `/auth`
 
-| Method | Path | Auth | Body | Response |
-|--------|------|------|------|----------|
-| POST | `/auth/register` | No | `{email, password}` | 201: `{user}` + sets `sid` cookie |
-| POST | `/auth/login` | No | `{email, password}` | 200: `{user}` + sets `sid` cookie |
-| POST | `/auth/logout` | No | — | 204: clears `sid` cookie |
-| GET | `/auth/me` | Yes | — | 200: `{user}` |
+| Method | Path             | Auth | Body                | Response                          |
+| ------ | ---------------- | ---- | ------------------- | --------------------------------- |
+| POST   | `/auth/register` | No   | `{email, password}` | 201: `{user}` + sets `sid` cookie |
+| POST   | `/auth/login`    | No   | `{email, password}` | 200: `{user}` + sets `sid` cookie |
+| POST   | `/auth/logout`   | No   | —                   | 204: clears `sid` cookie          |
+| GET    | `/auth/me`       | Yes  | —                   | 200: `{user}`                     |
 
 ### Batches — `/batches` (all authenticated)
 
-| Method | Path | Body / Params | Response |
-|--------|------|---------------|----------|
-| POST | `/batches` | `{items: [{type, url?, text?}]}` | 201: `{batch, items}` — enqueues jobs |
-| GET | `/batches` | `?limit=10&offset=0` | 200: `{data: batches[], meta}` |
-| GET | `/batches/:id` | — | 200: `{data: batch}` |
-| GET | `/batches/:id/items` | `?limit=10&offset=0` | 200: `{data: items[], meta}` |
+| Method | Path                 | Body / Params                    | Response                              |
+| ------ | -------------------- | -------------------------------- | ------------------------------------- |
+| POST   | `/batches`           | `{items: [{type, url?, text?}]}` | 201: `{batch, items}` — enqueues jobs |
+| GET    | `/batches`           | `?limit=10&offset=0`             | 200: `{data: batches[], meta}`        |
+| GET    | `/batches/:id`       | —                                | 200: `{data: batch}`                  |
+| GET    | `/batches/:id/items` | `?limit=10&offset=0`             | 200: `{data: items[], meta}`          |
 
 **Validation rules:**
+
 - 1–50 items per batch
 - URL items require a valid URL
 - Text items: 1–8,000 characters
@@ -224,6 +226,7 @@ Four tables managed by `node-pg-migrate` migrations:
 The queue decouples the API from AI processing, enabling horizontal scaling and built-in retry logic.
 
 **Queue configuration:**
+
 ```typescript
 {
   name: 'content-process',
@@ -253,10 +256,11 @@ stateDiagram-v2
 ```
 
 **Job data shape:**
+
 ```typescript
 {
-  itemId: string;         // batch_items.id
-  batchId: string;        // batches.id
+  itemId: string; // batch_items.id
+  batchId: string; // batches.id
   inputType: 'url' | 'text';
   inputUrl: string | null;
   inputText: string | null;
@@ -268,6 +272,7 @@ stateDiagram-v2
 This app uses **single-pass tool calling** — Claude receives the content and is instructed to call the `summarize` tool exactly once. This is distinct from the multi-turn agentic loop in App 8.
 
 **Tool definition:**
+
 ```typescript
 {
   name: 'summarize',
@@ -291,9 +296,11 @@ This app uses **single-pass tool calling** — Claude receives the content and i
 ```
 
 **System prompt:**
+
 > You are a content analysis assistant. You will be given content (either from a URL or raw text) and must analyze it using the available tools. For the content provided, call the summarize tool to generate a structured summary. Always call at least one tool. Do not respond with plain text — use the tools to structure your analysis.
 
 **Processing flow:**
+
 1. Worker sends content + tool definition to Claude
 2. Claude returns a `tool_use` content block with structured `input`
 3. Worker extracts `summary` and `key_points` from the tool call
@@ -318,6 +325,7 @@ Cookie-based session authentication:
 5. `requireAuth` middleware rejects requests without a valid session
 
 **Cookie settings:**
+
 - HttpOnly: true (no JS access)
 - SameSite: `lax` (dev) / `none` (production)
 - Secure: true (production only)
@@ -348,14 +356,14 @@ Express middleware executes in this order:
 
 ### Pages
 
-| Route | Component | Purpose |
-|-------|-----------|---------|
-| `/` | Home | Redirect: → `/dashboard` (auth) or `/login` (no auth) |
-| `/login` | LoginPage | Email/password login form |
-| `/register` | RegisterPage | Account creation form |
-| `/dashboard` | DashboardPage | Batch list + submission form |
-| `/batches/[id]` | BatchDetailPage | Batch detail with item results |
-| `/documents/[id]` | DocumentPage | Rendered markdown documentation |
+| Route             | Component       | Purpose                                               |
+| ----------------- | --------------- | ----------------------------------------------------- |
+| `/`               | Home            | Redirect: → `/dashboard` (auth) or `/login` (no auth) |
+| `/login`          | LoginPage       | Email/password login form                             |
+| `/register`       | RegisterPage    | Account creation form                                 |
+| `/dashboard`      | DashboardPage   | Batch list + submission form                          |
+| `/batches/[id]`   | BatchDetailPage | Batch detail with item results                        |
+| `/documents/[id]` | DocumentPage    | Rendered markdown documentation                       |
 
 ### Key Components
 
@@ -373,6 +381,7 @@ Express middleware executes in this order:
 ### API Client
 
 Thin wrapper around `fetch()` at `NEXT_PUBLIC_API_URL`:
+
 - Includes `credentials: 'include'` for cookie auth
 - JSON request/response handling
 - Structured error parsing
@@ -381,17 +390,18 @@ Thin wrapper around `fetch()` at `NEXT_PUBLIC_API_URL`:
 
 ## 10. Deployment
 
-| Service | Platform | Entry Point |
-|---------|----------|-------------|
-| API Server | Railway | `node dist/index.js` (port 3001) |
-| Worker | Railway | `node dist/index.js` (connects to shared Redis + PostgreSQL) |
-| Frontend | Vercel | `next build` → `next start` |
-| Database | Neon | Serverless PostgreSQL |
-| Queue | Railway | Redis instance |
+| Service    | Platform | Entry Point                                                  |
+| ---------- | -------- | ------------------------------------------------------------ |
+| API Server | Railway  | `node dist/index.js` (port 3001)                             |
+| Worker     | Railway  | `node dist/index.js` (connects to shared Redis + PostgreSQL) |
+| Frontend   | Vercel   | `next build` → `next start`                                  |
+| Database   | Neon     | Serverless PostgreSQL                                        |
+| Queue      | Railway  | Redis instance                                               |
 
 ### Environment Variables
 
 **Server:**
+
 - `DATABASE_URL` — Neon PostgreSQL connection string
 - `REDIS_URL` — Railway Redis connection string
 - `CORS_ORIGIN` — allowed frontend origin
@@ -399,22 +409,24 @@ Thin wrapper around `fetch()` at `NEXT_PUBLIC_API_URL`:
 - `NODE_ENV` — `production` or `development`
 
 **Worker:**
+
 - `DATABASE_URL`, `REDIS_URL`, `ANTHROPIC_API_KEY`, `NODE_ENV`
 
 **Frontend:**
+
 - `NEXT_PUBLIC_API_URL` — API server base URL
 
 ---
 
 ## 11. Architectural Decisions
 
-| Decision | Rationale |
-|----------|-----------|
-| **Single-pass tool calling** | Simpler than multi-turn agentic loops; sufficient for summarization. Multi-turn pattern deferred to App 8. |
-| **BullMQ + Redis** | Decouples API from processing. Built-in retry, rate limiting, and concurrency control. Horizontal worker scaling. |
-| **Cookie sessions** | Simpler than JWT. Session revocation is trivial (delete row). No token refresh complexity. |
-| **Polling (not WebSocket)** | Acceptable latency at 3s intervals. No persistent connection overhead. Simpler to deploy and debug. |
-| **JSONB for classification/entities** | Flexible schema — structure can evolve without migrations. |
-| **Zod validation** | End-to-end type safety from API input to database queries. Single source of truth for shapes. |
-| **Monorepo** | Shared TypeScript config. Coordinated deploys. Single CI pipeline. |
-| **@extractus/article-extractor** | Best-effort clean text from URLs. Falls back to raw fetch + tag stripping for non-article pages. |
+| Decision                              | Rationale                                                                                                         |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **Single-pass tool calling**          | Simpler than multi-turn agentic loops; sufficient for summarization. Multi-turn pattern deferred to App 8.        |
+| **BullMQ + Redis**                    | Decouples API from processing. Built-in retry, rate limiting, and concurrency control. Horizontal worker scaling. |
+| **Cookie sessions**                   | Simpler than JWT. Session revocation is trivial (delete row). No token refresh complexity.                        |
+| **Polling (not WebSocket)**           | Acceptable latency at 3s intervals. No persistent connection overhead. Simpler to deploy and debug.               |
+| **JSONB for classification/entities** | Flexible schema — structure can evolve without migrations.                                                        |
+| **Zod validation**                    | End-to-end type safety from API input to database queries. Single source of truth for shapes.                     |
+| **Monorepo**                          | Shared TypeScript config. Coordinated deploys. Single CI pipeline.                                                |
+| **@extractus/article-extractor**      | Best-effort clean text from URLs. Falls back to raw fetch + tag stripping for non-article pages.                  |

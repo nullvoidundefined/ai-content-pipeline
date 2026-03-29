@@ -28,7 +28,7 @@ export function errorHandler(
     message: isProd
       ? 'Internal server error'
       : err instanceof Error
-        ? err.stack ?? err.message
+        ? (err.stack ?? err.message)
         : String(err),
   });
 }

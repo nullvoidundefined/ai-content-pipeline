@@ -31,11 +31,9 @@ export async function register(req: Request, res: Response): Promise<void> {
       'User registered',
     );
     res.cookie(SESSION_COOKIE_NAME, sessionId, SESSION_COOKIE_OPTIONS);
-    res
-      .status(201)
-      .json({
-        user: { id: user.id, email: user.email, created_at: user.created_at },
-      });
+    res.status(201).json({
+      user: { id: user.id, email: user.email, created_at: user.created_at },
+    });
   } catch (err) {
     const code =
       err && typeof err === 'object' && 'code' in err

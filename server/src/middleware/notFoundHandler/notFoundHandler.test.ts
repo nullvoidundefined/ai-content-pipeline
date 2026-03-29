@@ -1,6 +1,7 @@
+import { ApiError } from 'app/utils/ApiError.js';
 import type { NextFunction, Request, Response } from 'express';
 import { describe, expect, it, vi } from 'vitest';
-import { ApiError } from 'app/utils/ApiError.js';
+
 import { notFoundHandler } from './notFoundHandler.js';
 
 describe('notFoundHandler', () => {

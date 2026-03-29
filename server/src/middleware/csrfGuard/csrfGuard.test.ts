@@ -1,6 +1,11 @@
 import cookieParser from 'cookie-parser';
-import express, { type NextFunction, type Request, type Response } from 'express';
+import express, {
+  type NextFunction,
+  type Request,
+  type Response,
+} from 'express';
 import { beforeAll, describe, expect, it } from 'vitest';
+
 import { csrfGuard, generateCsrfToken } from './csrfGuard.js';
 
 function createTestApp() {

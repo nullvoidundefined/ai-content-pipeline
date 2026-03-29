@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { loginSchema, registerSchema } from './auth.js';
 
 describe('registerSchema', () => {
