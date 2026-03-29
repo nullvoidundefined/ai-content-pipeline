@@ -44,7 +44,8 @@ app.use(cookieParser());
 app.use(csrfGuard);
 app.use(loadSession);
 
-app.use((_req, res, next) => {
+app.use((req, res, next) => {
+  req.setTimeout(REQUEST_TIMEOUT_MS);
   res.setTimeout(REQUEST_TIMEOUT_MS, () => {
     if (!res.headersSent) {
       res.status(408).json({ error: { message: 'Request timeout' } });
