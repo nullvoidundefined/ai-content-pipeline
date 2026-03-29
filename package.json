@@ -13,7 +13,7 @@
     "lint:fix": "pnpm -r run lint:fix",
     "format": "pnpm -r run format",
     "format:check": "pnpm -r run format:check",
-    "test": "pnpm --filter server run test",
-    "test:coverage": "pnpm --filter server run test:coverage"
+    "test": "pnpm --filter server run test && pnpm --filter worker run test",
+    "test:coverage": "pnpm --filter server run test:coverage && pnpm --filter worker run test:coverage"
   }
 }
