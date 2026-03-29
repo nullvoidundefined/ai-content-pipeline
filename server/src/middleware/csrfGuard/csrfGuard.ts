@@ -1,26 +1,15 @@
-import type { NextFunction, Request, Response } from 'express';
+import { doubleCsrf } from 'csrf-csrf';
+import type { Request } from 'express';
 
-const STATE_CHANGING_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
+const { doubleCsrfProtection, generateCsrfToken } = doubleCsrf({
+  getSecret: () => process.env.CSRF_SECRET!,
+  getSessionIdentifier: (req: Request) => req.cookies?.sid ?? '',
+  cookieName: '__csrf',
+  cookieOptions: {
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: process.env.NODE_ENV === 'production',
+  },
+});
 
-/**
- * Rejects state-changing requests that lack X-Requested-With.
- * Reduces CSRF risk when using cookie-based sessions with credentials.
- */
-export function csrfGuard(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
-  if (!STATE_CHANGING_METHODS.includes(req.method)) {
-    next();
-    return;
-  }
-  const value = req.get('X-Requested-With');
-  if (!value) {
-    res
-      .status(403)
-      .json({ error: { message: 'Missing X-Requested-With header' } });
-    return;
-  }
-  next();
-}
+export { doubleCsrfProtection as csrfGuard, generateCsrfToken };

@@ -3,7 +3,10 @@ import { isProduction } from 'app/config/env.js';
 import { shutdownQueues } from 'app/config/queue.js';
 import { getRedis, shutdownRedis } from 'app/config/redis.js';
 import pool, { query } from 'app/db/pool/pool.js';
-import { csrfGuard } from 'app/middleware/csrfGuard/csrfGuard.js';
+import {
+  csrfGuard,
+  generateCsrfToken,
+} from 'app/middleware/csrfGuard/csrfGuard.js';
 import { errorHandler } from 'app/middleware/errorHandler/errorHandler.js';
 import { notFoundHandler } from 'app/middleware/notFoundHandler/notFoundHandler.js';
 import { rateLimiter } from 'app/middleware/rateLimiter/rateLimiter.js';
@@ -55,6 +58,11 @@ query('SELECT NOW()')
   .catch((err: unknown) => logger.error({ err }, 'Database connection failed'));
 
 getRedis();
+
+app.get('/api/csrf-token', (req, res) => {
+  const token = generateCsrfToken(req, res);
+  res.json({ token });
+});
 
 app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
