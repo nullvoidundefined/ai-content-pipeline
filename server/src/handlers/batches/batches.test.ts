@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ApiError } from 'app/utils/ApiError.js';
 
 vi.mock('app/repositories/batches/batches.js', () => ({
   createBatchWithItems: vi.fn(),
@@ -56,37 +57,43 @@ describe('createBatch handler', () => {
     vi.clearAllMocks();
   });
 
-  it('returns 400 for invalid input', async () => {
+  it('throws VALIDATION_ERROR for invalid input', async () => {
     const req = mockReq({ body: { items: [] } });
     const res = mockRes();
 
-    await createBatch(req, res);
-
-    expect(res._status).toBe(400);
+    await expect(createBatch(req, res)).rejects.toThrow(ApiError);
+    await expect(createBatch(req, res)).rejects.toMatchObject({
+      statusCode: 400,
+      code: 'VALIDATION_ERROR',
+    });
   });
 
-  it('returns 400 for URL item without url field', async () => {
+  it('throws VALIDATION_ERROR for URL item without url field', async () => {
     const req = mockReq({
       body: { items: [{ type: 'url' }] },
     });
     const res = mockRes();
 
-    await createBatch(req, res);
-
-    expect(res._status).toBe(400);
-    expect((res._body as any).error.message).toContain('URL items must include a url field');
+    await expect(createBatch(req, res)).rejects.toThrow(ApiError);
+    await expect(createBatch(req, res)).rejects.toMatchObject({
+      statusCode: 400,
+      code: 'VALIDATION_ERROR',
+      message: 'URL items must include a url field',
+    });
   });
 
-  it('returns 400 for text item without text field', async () => {
+  it('throws VALIDATION_ERROR for text item without text field', async () => {
     const req = mockReq({
       body: { items: [{ type: 'text' }] },
     });
     const res = mockRes();
 
-    await createBatch(req, res);
-
-    expect(res._status).toBe(400);
-    expect((res._body as any).error.message).toContain('Text items must include a text field');
+    await expect(createBatch(req, res)).rejects.toThrow(ApiError);
+    await expect(createBatch(req, res)).rejects.toMatchObject({
+      statusCode: 400,
+      code: 'VALIDATION_ERROR',
+      message: 'Text items must include a text field',
+    });
   });
 
   it('creates batch and enqueues items when queue is available', async () => {
@@ -153,15 +160,17 @@ describe('getBatch handler', () => {
     expect((res._body as any).data).toEqual(mockBatch);
   });
 
-  it('returns 404 when batch not found', async () => {
+  it('throws NOT_FOUND when batch not found', async () => {
     vi.mocked(batchesRepo.getBatchById).mockResolvedValue(null);
 
     const req = mockReq({ params: { id: 'nonexistent' } as any });
     const res = mockRes();
 
-    await getBatch(req, res);
-
-    expect(res._status).toBe(404);
+    await expect(getBatch(req, res)).rejects.toThrow(ApiError);
+    await expect(getBatch(req, res)).rejects.toMatchObject({
+      statusCode: 404,
+      code: 'NOT_FOUND',
+    });
   });
 });
 
@@ -186,15 +195,17 @@ describe('getBatchItems handler', () => {
     expect((res._body as any).meta.total).toBe(1);
   });
 
-  it('returns 404 when batch not found', async () => {
+  it('throws NOT_FOUND when batch not found', async () => {
     vi.mocked(batchesRepo.getBatchById).mockResolvedValue(null);
 
     const req = mockReq({ params: { id: 'nonexistent' } as any });
     const res = mockRes();
 
-    await getBatchItems(req, res);
-
-    expect(res._status).toBe(404);
+    await expect(getBatchItems(req, res)).rejects.toThrow(ApiError);
+    await expect(getBatchItems(req, res)).rejects.toMatchObject({
+      statusCode: 404,
+      code: 'NOT_FOUND',
+    });
   });
 });
 

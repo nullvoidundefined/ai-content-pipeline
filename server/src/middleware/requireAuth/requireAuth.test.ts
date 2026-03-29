@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ApiError } from 'app/utils/ApiError.js';
 
 vi.mock('app/repositories/auth/auth.js', () => ({
   getSessionWithUser: vi.fn(),
@@ -21,21 +22,21 @@ function mockRes(): Response {
 }
 
 describe('requireAuth middleware', () => {
-  it('returns 401 when req.user is not set', () => {
+  it('calls next with UNAUTHORIZED ApiError when req.user is not set', () => {
     const req = mockReq();
     const res = mockRes();
     const next = vi.fn();
 
     requireAuth(req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith({
-      error: { message: 'Authentication required' },
-    });
-    expect(next).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    const err = next.mock.calls[0][0] as ApiError;
+    expect(err.statusCode).toBe(401);
+    expect(err.code).toBe('UNAUTHORIZED');
+    expect(err.message).toBe('Authentication required');
   });
 
-  it('calls next when req.user is set', () => {
+  it('calls next without error when req.user is set', () => {
     const req = mockReq();
     (req as any).user = { id: 'user-1', email: 'test@test.com' };
     const res = mockRes();
@@ -43,7 +44,7 @@ describe('requireAuth middleware', () => {
 
     requireAuth(req, res, next);
 
-    expect(next).toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith();
     expect(res.status).not.toHaveBeenCalled();
   });
 });

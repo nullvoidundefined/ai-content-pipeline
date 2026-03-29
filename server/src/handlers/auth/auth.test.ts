@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ApiError } from 'app/utils/ApiError.js';
 
 vi.mock('app/repositories/auth/auth.js', () => ({
   createUserAndSession: vi.fn(),
@@ -69,13 +70,15 @@ describe('register handler', () => {
     vi.clearAllMocks();
   });
 
-  it('returns 400 for invalid input', async () => {
+  it('throws VALIDATION_ERROR for invalid input', async () => {
     const req = mockReq({ body: { email: 'bad', password: 'x' } });
     const res = mockRes();
 
-    await register(req, res);
-
-    expect(res._status).toBe(400);
+    await expect(register(req, res)).rejects.toThrow(ApiError);
+    await expect(register(req, res)).rejects.toMatchObject({
+      statusCode: 400,
+      code: 'VALIDATION_ERROR',
+    });
   });
 
   it('creates user and sets session cookie on success', async () => {
@@ -95,7 +98,7 @@ describe('register handler', () => {
     expect((res._body as any).user.id).toBe('user-1');
   });
 
-  it('returns 409 for duplicate email', async () => {
+  it('throws DUPLICATE_EMAIL for duplicate email', async () => {
     const err = new Error('duplicate');
     (err as any).code = '23505';
     vi.mocked(authRepo.createUserAndSession).mockRejectedValue(err);
@@ -103,10 +106,12 @@ describe('register handler', () => {
     const req = mockReq({ body: { email: 'dup@test.com', password: 'securepass' } });
     const res = mockRes();
 
-    await register(req, res);
-
-    expect(res._status).toBe(409);
-    expect((res._body as any).error.message).toContain('already registered');
+    await expect(register(req, res)).rejects.toThrow(ApiError);
+    await expect(register(req, res)).rejects.toMatchObject({
+      statusCode: 409,
+      code: 'DUPLICATE_EMAIL',
+      message: 'Email already registered',
+    });
   });
 
   it('rethrows non-duplicate errors', async () => {
@@ -124,27 +129,31 @@ describe('login handler', () => {
     vi.clearAllMocks();
   });
 
-  it('returns 400 for invalid input', async () => {
+  it('throws VALIDATION_ERROR for invalid input', async () => {
     const req = mockReq({ body: { email: 'bad' } });
     const res = mockRes();
 
-    await login(req, res);
-
-    expect(res._status).toBe(400);
+    await expect(login(req, res)).rejects.toThrow(ApiError);
+    await expect(login(req, res)).rejects.toMatchObject({
+      statusCode: 400,
+      code: 'VALIDATION_ERROR',
+    });
   });
 
-  it('returns 401 for unknown email', async () => {
+  it('throws UNAUTHORIZED for unknown email', async () => {
     vi.mocked(authRepo.findUserByEmail).mockResolvedValue(null);
 
     const req = mockReq({ body: { email: 'unknown@test.com', password: 'password' } });
     const res = mockRes();
 
-    await login(req, res);
-
-    expect(res._status).toBe(401);
+    await expect(login(req, res)).rejects.toThrow(ApiError);
+    await expect(login(req, res)).rejects.toMatchObject({
+      statusCode: 401,
+      code: 'UNAUTHORIZED',
+    });
   });
 
-  it('returns 401 for wrong password', async () => {
+  it('throws UNAUTHORIZED for wrong password', async () => {
     vi.mocked(authRepo.findUserByEmail).mockResolvedValue({
       id: 'user-1',
       email: 'test@test.com',
@@ -157,9 +166,11 @@ describe('login handler', () => {
     const req = mockReq({ body: { email: 'test@test.com', password: 'wrong' } });
     const res = mockRes();
 
-    await login(req, res);
-
-    expect(res._status).toBe(401);
+    await expect(login(req, res)).rejects.toThrow(ApiError);
+    await expect(login(req, res)).rejects.toMatchObject({
+      statusCode: 401,
+      code: 'UNAUTHORIZED',
+    });
   });
 
   it('sets cookie and returns user on success', async () => {

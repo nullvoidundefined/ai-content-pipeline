@@ -2,6 +2,7 @@ import { isProduction } from 'app/config/env.js';
 import { SESSION_COOKIE_NAME, SESSION_TTL_MS } from 'app/constants/session.js';
 import * as authRepo from 'app/repositories/auth/auth.js';
 import { loginSchema, registerSchema } from 'app/schemas/auth.js';
+import { ApiError } from 'app/utils/ApiError.js';
 import { logger } from 'app/utils/logs/logger.js';
 import type { Request, Response } from 'express';
 
@@ -17,8 +18,7 @@ export async function register(req: Request, res: Response): Promise<void> {
   const parsed = registerSchema.safeParse(req.body);
   if (!parsed.success) {
     const message = parsed.error.issues.map((e) => e.message).join('; ');
-    res.status(400).json({ error: { message } });
-    return;
+    throw ApiError.badRequest(message);
   }
   const { email, password } = parsed.data;
   try {
@@ -46,8 +46,7 @@ export async function register(req: Request, res: Response): Promise<void> {
         { event: 'register_duplicate_email', ip: req.ip },
         'Registration failed: email already registered',
       );
-      res.status(409).json({ error: { message: 'Email already registered' } });
-      return;
+      throw new ApiError(409, 'DUPLICATE_EMAIL', 'Email already registered');
     }
     throw err;
   }
@@ -57,19 +56,16 @@ export async function login(req: Request, res: Response): Promise<void> {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) {
     const message = parsed.error.issues.map((e) => e.message).join('; ');
-    res.status(400).json({ error: { message } });
-    return;
+    throw ApiError.badRequest(message);
   }
   const { email, password } = parsed.data;
   const user = await authRepo.findUserByEmail(email);
   if (!user) {
-    res.status(401).json({ error: { message: 'Invalid email or password' } });
-    return;
+    throw ApiError.unauthorized('Invalid email or password');
   }
   const valid = await authRepo.verifyPassword(password, user.password_hash);
   if (!valid) {
-    res.status(401).json({ error: { message: 'Invalid email or password' } });
-    return;
+    throw ApiError.unauthorized('Invalid email or password');
   }
   const sessionId = await authRepo.loginUser(user.id);
   logger.info(
