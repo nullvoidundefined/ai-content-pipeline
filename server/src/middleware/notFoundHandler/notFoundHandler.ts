@@ -1,9 +1,6 @@
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
+import { ApiError } from 'app/utils/ApiError.js';
 
-export function notFoundHandler(_req: Request, res: Response) {
-  res.status(404).json({
-    error: {
-      message: 'Not found',
-    },
-  });
+export function notFoundHandler(_req: Request, _res: Response, next: NextFunction) {
+  next(ApiError.notFound('Not found'));
 }

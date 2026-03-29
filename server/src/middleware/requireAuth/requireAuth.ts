@@ -1,5 +1,6 @@
 import { SESSION_COOKIE_NAME } from 'app/constants/session.js';
 import * as authRepo from 'app/repositories/auth/auth.js';
+import { ApiError } from 'app/utils/ApiError.js';
 import type { NextFunction, Request, Response } from 'express';
 
 export async function loadSession(
@@ -24,11 +25,11 @@ export async function loadSession(
 
 export function requireAuth(
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction,
 ): void {
   if (!req.user) {
-    res.status(401).json({ error: { message: 'Authentication required' } });
+    next(ApiError.unauthorized());
     return;
   }
   next();
