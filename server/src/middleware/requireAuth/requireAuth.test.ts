@@ -1,13 +1,13 @@
-import type { NextFunction, Request, Response } from 'express';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import * as authRepo from 'app/repositories/auth/auth.js';
 import { ApiError } from 'app/utils/ApiError.js';
+import type { Request, Response } from 'express';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { loadSession, requireAuth } from './requireAuth.js';
 
 vi.mock('app/repositories/auth/auth.js', () => ({
   getSessionWithUser: vi.fn(),
 }));
-
-import * as authRepo from 'app/repositories/auth/auth.js';
-import { loadSession, requireAuth } from './requireAuth.js';
 
 function mockReq(cookies: Record<string, string> = {}): Request {
   return { cookies } as unknown as Request;

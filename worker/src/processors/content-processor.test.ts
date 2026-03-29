@@ -1,6 +1,8 @@
 import type { Job } from 'bullmq';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { processItem } from './content-processor.js';
+
 const { mockQuery, mockCreate, mockFetchContent } = vi.hoisted(() => ({
   mockQuery: vi.fn(),
   mockCreate: vi.fn(),
@@ -32,8 +34,6 @@ vi.mock('app/utils/logs/logger.js', () => ({
   },
 }));
 
-import { processItem } from './content-processor.js';
-
 function mockJob(data: Record<string, unknown>): Job {
   return { data } as unknown as Job;
 }
@@ -62,7 +62,9 @@ describe('processItem', () => {
       usage: { input_tokens: 100, output_tokens: 50 },
     };
     mockCreate.mockResolvedValue(mockToolUseResponse);
-    mockFetchContent.mockResolvedValue('This is a long enough article about AI and machine learning advances.');
+    mockFetchContent.mockResolvedValue(
+      'This is a long enough article about AI and machine learning advances.',
+    );
 
     const job = mockJob({
       itemId: 'item-1',
@@ -175,7 +177,9 @@ describe('processItem', () => {
   });
 
   it('marks item as failed when LLM does not return a summarize tool call', async () => {
-    mockFetchContent.mockResolvedValue('This is a long enough article about some topic for processing.');
+    mockFetchContent.mockResolvedValue(
+      'This is a long enough article about some topic for processing.',
+    );
 
     const mockTextResponse = {
       id: 'msg_test',
@@ -197,12 +201,17 @@ describe('processItem', () => {
 
     expect(mockQuery).toHaveBeenCalledWith(
       expect.stringContaining("status = 'failed'"),
-      expect.arrayContaining(['LLM did not return a summary tool call', 'item-5']),
+      expect.arrayContaining([
+        'LLM did not return a summary tool call',
+        'item-5',
+      ]),
     );
   });
 
   it('marks item as failed when Anthropic API throws', async () => {
-    mockFetchContent.mockResolvedValue('This is a sufficiently long article about technology and its impact.');
+    mockFetchContent.mockResolvedValue(
+      'This is a sufficiently long article about technology and its impact.',
+    );
     mockCreate.mockRejectedValue(new Error('Rate limited'));
 
     const job = mockJob({
@@ -238,7 +247,9 @@ describe('processItem', () => {
       usage: { input_tokens: 50, output_tokens: 30 },
     };
     mockCreate.mockResolvedValue(mockToolUseResponse);
-    mockFetchContent.mockResolvedValue('Sufficiently long content for processing and analysis here.');
+    mockFetchContent.mockResolvedValue(
+      'Sufficiently long content for processing and analysis here.',
+    );
 
     const job = mockJob({
       itemId: 'item-7',

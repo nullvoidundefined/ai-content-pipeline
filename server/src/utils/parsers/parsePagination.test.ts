@@ -1,5 +1,6 @@
 import type { Request } from 'express';
 import { describe, expect, it } from 'vitest';
+
 import { parsePagination } from './parsePagination.js';
 
 function mockReq(query: Record<string, string> = {}): Request {

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { SYSTEM_PROMPT, TOOL_DEFINITIONS } from './tool-definitions.js';
 
 describe('TOOL_DEFINITIONS', () => {

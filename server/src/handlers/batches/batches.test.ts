@@ -1,6 +1,15 @@
+import { getContentProcessQueue } from 'app/config/queue.js';
+import * as batchesRepo from 'app/repositories/batches/batches.js';
+import { ApiError } from 'app/utils/ApiError.js';
 import type { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ApiError } from 'app/utils/ApiError.js';
+
+import {
+  createBatch,
+  getBatch,
+  getBatchItems,
+  listBatches,
+} from './batches.js';
 
 vi.mock('app/repositories/batches/batches.js', () => ({
   createBatchWithItems: vi.fn(),
@@ -21,10 +30,6 @@ vi.mock('app/utils/logs/logger.js', () => ({
     debug: vi.fn(),
   },
 }));
-
-import { getContentProcessQueue } from 'app/config/queue.js';
-import * as batchesRepo from 'app/repositories/batches/batches.js';
-import { createBatch, getBatch, getBatchItems, listBatches } from './batches.js';
 
 function mockReq(overrides: Partial<Request> = {}): Request {
   return {
@@ -99,7 +104,13 @@ describe('createBatch handler', () => {
   it('creates batch and enqueues items when queue is available', async () => {
     const mockBatch = { id: 'batch-1', user_id: 'user-1', status: 'pending' };
     const mockItems = [
-      { id: 'item-1', batch_id: 'batch-1', input_type: 'url', input_url: 'https://example.com', input_text: null },
+      {
+        id: 'item-1',
+        batch_id: 'batch-1',
+        input_type: 'url',
+        input_url: 'https://example.com',
+        input_text: null,
+      },
     ];
     vi.mocked(batchesRepo.createBatchWithItems).mockResolvedValue({
       batch: mockBatch as any,
@@ -107,7 +118,9 @@ describe('createBatch handler', () => {
     });
 
     const mockQueueAdd = vi.fn();
-    vi.mocked(getContentProcessQueue).mockReturnValue({ add: mockQueueAdd } as any);
+    vi.mocked(getContentProcessQueue).mockReturnValue({
+      add: mockQueueAdd,
+    } as any);
 
     const req = mockReq({
       body: { items: [{ type: 'url', url: 'https://example.com' }] },
@@ -118,10 +131,13 @@ describe('createBatch handler', () => {
 
     expect(res._status).toBe(201);
     expect((res._body as any).data.batch.id).toBe('batch-1');
-    expect(mockQueueAdd).toHaveBeenCalledWith('process-item', expect.objectContaining({
-      itemId: 'item-1',
-      batchId: 'batch-1',
-    }));
+    expect(mockQueueAdd).toHaveBeenCalledWith(
+      'process-item',
+      expect.objectContaining({
+        itemId: 'item-1',
+        batchId: 'batch-1',
+      }),
+    );
   });
 
   it('creates batch without enqueuing when queue is unavailable', async () => {
@@ -180,7 +196,9 @@ describe('getBatchItems handler', () => {
   });
 
   it('returns items with pagination meta', async () => {
-    vi.mocked(batchesRepo.getBatchById).mockResolvedValue({ id: 'batch-1' } as any);
+    vi.mocked(batchesRepo.getBatchById).mockResolvedValue({
+      id: 'batch-1',
+    } as any);
     vi.mocked(batchesRepo.getBatchItems).mockResolvedValue({
       items: [{ id: 'item-1' }] as any,
       total: 1,
