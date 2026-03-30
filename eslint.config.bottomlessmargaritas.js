@@ -11,7 +11,15 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config([
   {
-    ignores: ['build', 'dist', 'node_modules', '**/*.d.ts', '.turbo'],
+    ignores: [
+      'build',
+      'dist',
+      'node_modules',
+      '**/*.d.ts',
+      '.turbo',
+      '.claude',
+      '**/web-client/.next',
+    ],
   },
   {
     linterOptions: {

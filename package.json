@@ -7,12 +7,13 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "prepare": "git rev-parse --git-dir > /dev/null 2>&1 && lefthook install || true",
     "dev": "pnpm --parallel run dev",
     "build": "pnpm --filter server build && pnpm --filter worker build && pnpm --filter web-client build",
     "lint": "eslint --config eslint.config.bottomlessmargaritas.js .",
     "lint:fix": "eslint --config eslint.config.bottomlessmargaritas.js . --fix",
     "format": "prettier --config prettier.config.bottomlessmargaritas.mjs --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
-    "format:check": "prettier --config prettier.config.bottomlessmargaritas.mjs --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "format:check": "prettier --config prettier.config.bottomlessmargaritas.js --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "test": "pnpm --filter server run test && pnpm --filter worker run test",
     "test:coverage": "pnpm --filter server run test:coverage && pnpm --filter worker run test:coverage",
     "bottomlessmargaritas:format": "prettier --config prettier.config.bottomlessmargaritas.js --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@bottomlessmargaritas/claude-architecture-prompts": "^2.1.0",
+    "lefthook": "^2.1.1",
     "@bottomlessmargaritas/formatting-configs": "^2.1.0",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@typescript-eslint/parser": "^8",
