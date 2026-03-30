@@ -26,17 +26,6 @@
   gap: 12px;
 }
 
-.docLink {
-  font-size: 13px;
-  color: var(--foreground-muted);
-  text-decoration: none;
-  transition: color 0.15s;
-
-  &:hover {
-    color: var(--foreground);
-  }
-}
-
 .email {
   font-size: 13px;
   color: var(--foreground-muted);
