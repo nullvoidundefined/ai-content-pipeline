@@ -11,18 +11,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config([
   {
-    ignores: [
-      'build',
-      'dist',
-      '**/dist',
-      'node_modules',
-      '**/*.d.ts',
-      '.turbo',
-      '.claude',
-      'server/dist',
-      'worker/dist',
-      'web-client/.next',
-    ],
+    ignores: ['build', 'dist', 'node_modules', '**/*.d.ts', '.turbo'],
   },
   {
     linterOptions: {
@@ -86,11 +75,7 @@ export default tseslint.config([
       parserOptions: {
         ecmaFeatures: { jsx: true },
         ecmaVersion: 'latest',
-        project: [
-          './server/tsconfig.json',
-          './worker/tsconfig.json',
-          './web-client/tsconfig.json',
-        ],
+        project: ['./tsconfig.json'],
         sourceType: 'module',
       },
     },
