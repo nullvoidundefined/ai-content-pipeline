@@ -18,6 +18,7 @@ export default tseslint.config([
       '**/*.d.ts',
       '**/.turbo/**',
       '**/.next/**',
+      '**/.claude/**',
     ],
   },
   {
