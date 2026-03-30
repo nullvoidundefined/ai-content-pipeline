@@ -30,7 +30,7 @@ describe('requireAuth middleware', () => {
     requireAuth(req, res, next);
 
     expect(next).toHaveBeenCalledWith(expect.any(ApiError));
-    const err = next.mock.calls[0][0] as ApiError;
+    const err = next.mock.calls[0]![0] as ApiError;
     expect(err.statusCode).toBe(401);
     expect(err.code).toBe('UNAUTHORIZED');
     expect(err.message).toBe('Authentication required');

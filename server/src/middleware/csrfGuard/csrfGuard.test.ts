@@ -81,7 +81,7 @@ describe('CSRF middleware', () => {
     const res = await request(app)
       .post('/api/test')
       .set('x-csrf-token', token)
-      .set('Cookie', cookies)
+      .set('Cookie', cookies!)
       .send({ data: 'test' });
 
     expect(res.status).toBe(200);
