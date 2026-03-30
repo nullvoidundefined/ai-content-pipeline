@@ -34,7 +34,7 @@ export default tseslint.config([
       'unused-imports': unusedImports,
     },
     rules: {
-      'curly': 'error',
+      curly: 'error',
       'no-console': ['warn', { allow: ['warn', 'info', 'error', 'group'] }],
       'no-implicit-globals': 'error',
       'no-param-reassign': ['error', { props: false }],
@@ -86,12 +86,19 @@ export default tseslint.config([
       parserOptions: {
         ecmaFeatures: { jsx: true },
         ecmaVersion: 'latest',
-        project: ['./server/tsconfig.json', './worker/tsconfig.json', './web-client/tsconfig.json'],
+        project: [
+          './server/tsconfig.json',
+          './worker/tsconfig.json',
+          './web-client/tsconfig.json',
+        ],
         sourceType: 'module',
       },
     },
     rules: {
-      '@typescript-eslint/ban-ts-comment': ['warn', { 'ts-ignore': 'allow-with-description' }],
+      '@typescript-eslint/ban-ts-comment': [
+        'warn',
+        { 'ts-ignore': 'allow-with-description' },
+      ],
       '@typescript-eslint/consistent-type-definitions': 'off',
       '@typescript-eslint/consistent-type-imports': [
         'warn',
