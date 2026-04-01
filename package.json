@@ -16,6 +16,7 @@
     "format:check": "prettier --config prettier.config.bottomlessmargaritas.mjs --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "test": "pnpm --filter server run test && pnpm --filter worker run test",
     "test:coverage": "pnpm --filter server run test:coverage && pnpm --filter worker run test:coverage",
+    "smoke": "bash scripts/smoke-test.sh",
     "bottomlessmargaritas:format": "prettier --config prettier.config.bottomlessmargaritas.mjs --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "bottomlessmargaritas:format:check": "prettier --config prettier.config.bottomlessmargaritas.mjs --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "bottomlessmargaritas:lint": "eslint --config eslint.config.bottomlessmargaritas.js .",
