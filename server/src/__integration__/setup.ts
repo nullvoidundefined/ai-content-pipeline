@@ -1,10 +1,11 @@
 import pool from 'app/db/pool/pool.js';
+import 'dotenv/config';
 import { afterAll, beforeAll } from 'vitest';
 
 beforeAll(async () => {
   if (!process.env.DATABASE_URL) {
     console.warn('DATABASE_URL not set — skipping integration tests');
-    process.exit(0);
+    return;
   }
 
   // Clean test data from previous runs
