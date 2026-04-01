@@ -22,8 +22,7 @@
     "bottomlessmargaritas:lint:fix": "eslint --config eslint.config.bottomlessmargaritas.js . --fix"
   },
   "devDependencies": {
-    "@bottomlessmargaritas/claude-architecture-prompts": "^2.1.0",
-    "lefthook": "^2.1.1",
+    "@bottomlessmargaritas/claude-architecture-prompts": "^3.0.0",
     "@bottomlessmargaritas/formatting-configs": "^2.2.2",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@typescript-eslint/parser": "^8",
@@ -32,6 +31,7 @@
     "eslint-plugin-security": "^3",
     "eslint-plugin-unused-imports": "^4",
     "globals": "^15",
+    "lefthook": "^2.1.1",
     "prettier": "^3",
     "typescript-eslint": "^8"
   },

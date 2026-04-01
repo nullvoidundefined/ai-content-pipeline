@@ -7,7 +7,8 @@ dist/
 .DS_Store
 
 # Claude Code local settings
-.claude/
+.claude/*
+!.claude/bottomlessmargaritas/
 next-env.d.ts
 
 # Vercel
