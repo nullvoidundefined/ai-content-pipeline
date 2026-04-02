@@ -27,8 +27,9 @@ describe('Auth Integration', () => {
     expect(typeof res.body.token).toBe('string');
     csrfToken = res.body.token;
     csrfCookie =
-      res.headers['set-cookie']?.find((c: string) => c.startsWith('__csrf')) ??
-      '';
+      (res.headers['set-cookie'] as unknown as string[])?.find((c) =>
+        c.startsWith('__csrf'),
+      ) ?? '';
     expect(csrfCookie).not.toBe('');
   });
 
@@ -46,7 +47,9 @@ describe('Auth Integration', () => {
     expect(res.body.user.id).toBeDefined();
 
     sessionCookie =
-      res.headers['set-cookie']?.find((c: string) => c.startsWith('sid')) ?? '';
+      (res.headers['set-cookie'] as unknown as string[])?.find((c) =>
+        c.startsWith('sid'),
+      ) ?? '';
     expect(sessionCookie).not.toBe('');
   });
 
@@ -66,7 +69,7 @@ describe('Auth Integration', () => {
       .set('Cookie', [csrfCookie, sessionCookie].join('; '));
     const logoutCsrf = tokenRes.body.token;
     const logoutCsrfCookie =
-      tokenRes.headers['set-cookie']?.find((c: string) =>
+      (tokenRes.headers['set-cookie'] as unknown as string[])?.find((c) =>
         c.startsWith('__csrf'),
       ) ?? csrfCookie;
 
@@ -92,7 +95,7 @@ describe('Auth Integration', () => {
     const tokenRes = await request(server).get('/api/csrf-token');
     const loginCsrf = tokenRes.body.token;
     const loginCsrfCookie =
-      tokenRes.headers['set-cookie']?.find((c: string) =>
+      (tokenRes.headers['set-cookie'] as unknown as string[])?.find((c) =>
         c.startsWith('__csrf'),
       ) ?? '';
 
@@ -111,7 +114,7 @@ describe('Auth Integration', () => {
     const tokenRes = await request(server).get('/api/csrf-token');
     const badCsrf = tokenRes.body.token;
     const badCsrfCookie =
-      tokenRes.headers['set-cookie']?.find((c: string) =>
+      (tokenRes.headers['set-cookie'] as unknown as string[])?.find((c) =>
         c.startsWith('__csrf'),
       ) ?? '';
 
@@ -140,7 +143,7 @@ describe('Auth Integration', () => {
     const tokenRes = await request(server).get('/api/csrf-token');
     const dupCsrf = tokenRes.body.token;
     const dupCsrfCookie =
-      tokenRes.headers['set-cookie']?.find((c: string) =>
+      (tokenRes.headers['set-cookie'] as unknown as string[])?.find((c) =>
         c.startsWith('__csrf'),
       ) ?? '';
 

@@ -20,7 +20,7 @@ describe('Batches Integration', () => {
     const tokenRes = await request(server).get('/api/csrf-token');
     csrfToken = tokenRes.body.token;
     csrfCookie =
-      tokenRes.headers['set-cookie']?.find((c: string) =>
+      (tokenRes.headers['set-cookie'] as unknown as string[])?.find((c) =>
         c.startsWith('__csrf'),
       ) ?? '';
 
@@ -32,7 +32,7 @@ describe('Batches Integration', () => {
       .send({ email: TEST_EMAIL, password: TEST_PASSWORD });
 
     sessionCookie =
-      registerRes.headers['set-cookie']?.find((c: string) =>
+      (registerRes.headers['set-cookie'] as unknown as string[])?.find((c) =>
         c.startsWith('sid'),
       ) ?? '';
 
@@ -42,7 +42,7 @@ describe('Batches Integration', () => {
       .set('Cookie', [csrfCookie, sessionCookie].join('; '));
     csrfToken = freshToken.body.token;
     csrfCookie =
-      freshToken.headers['set-cookie']?.find((c: string) =>
+      (freshToken.headers['set-cookie'] as unknown as string[])?.find((c) =>
         c.startsWith('__csrf'),
       ) ?? csrfCookie;
   });
@@ -109,7 +109,7 @@ describe('Batches Integration', () => {
     const tokenRes = await request(server).get('/api/csrf-token');
     const anonCsrf = tokenRes.body.token;
     const anonCsrfCookie =
-      tokenRes.headers['set-cookie']?.find((c: string) =>
+      (tokenRes.headers['set-cookie'] as unknown as string[])?.find((c) =>
         c.startsWith('__csrf'),
       ) ?? '';
 
