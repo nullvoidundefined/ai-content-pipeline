@@ -2,6 +2,9 @@ import 'dotenv/config';
 import path from 'path';
 import { defineConfig } from 'vitest/config';
 
+// Disable Redis/BullMQ in integration tests — we test HTTP routes, not job processing
+process.env.REDIS_URL = '';
+
 export default defineConfig({
   test: {
     globals: true,
