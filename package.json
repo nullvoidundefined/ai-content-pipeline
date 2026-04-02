@@ -18,6 +18,8 @@
     "test:coverage": "pnpm --filter server run test:coverage && pnpm --filter worker run test:coverage",
     "smoke": "bash scripts/smoke-test.sh",
     "test:integration": "pnpm --filter server run test:integration",
+    "test:e2e": "npx tsx scripts/seed-test-db.ts && npx playwright test",
+    "test:e2e:headed": "npx tsx scripts/seed-test-db.ts && npx playwright test --headed",
     "bottomlessmargaritas:format": "prettier --config prettier.config.bottomlessmargaritas.mjs --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "bottomlessmargaritas:format:check": "prettier --config prettier.config.bottomlessmargaritas.mjs --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "bottomlessmargaritas:lint": "eslint --config eslint.config.bottomlessmargaritas.js .",
@@ -26,6 +28,7 @@
   "devDependencies": {
     "@bottomlessmargaritas/claude-architecture-prompts": "^3.0.0",
     "@bottomlessmargaritas/formatting-configs": "^2.2.2",
+    "@playwright/test": "^1.59.1",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@typescript-eslint/parser": "^8",
     "eslint": "^9.0.0",
@@ -35,6 +38,7 @@
     "globals": "^15",
     "lefthook": "^2.1.1",
     "prettier": "^3",
+    "tsx": "^4.21.0",
     "typescript-eslint": "^8"
   },
   "dependencies": {
